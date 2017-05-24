@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 /**
+ * 基于SP的一次执行类，保证某个方法只运行一次
  * Created by drakeet on 8/16/15.
  */
 public class Once {

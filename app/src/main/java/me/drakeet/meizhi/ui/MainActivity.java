@@ -30,18 +30,21 @@ import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import butterknife.Bind;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
+
 import com.litesuits.orm.db.assit.QueryBuilder;
 import com.litesuits.orm.db.model.ConflictAlgorithm;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.umeng.analytics.MobclickAgent;
 import com.umeng.update.UmengUpdateAgent;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import me.drakeet.meizhi.App;
 import me.drakeet.meizhi.R;
 import me.drakeet.meizhi.data.MeizhiData;
@@ -64,7 +67,8 @@ public class MainActivity extends SwipeRefreshBaseActivity {
 
     private static final int PRELOAD_SIZE = 6;
 
-    @Bind(R.id.list) RecyclerView mRecyclerView;
+    @Bind(R.id.list)
+    RecyclerView mRecyclerView;
 
     private MeizhiListAdapter mMeizhiListAdapter;
     private List<Meizhi> mMeizhiList;
@@ -73,18 +77,29 @@ public class MainActivity extends SwipeRefreshBaseActivity {
     private boolean mMeizhiBeTouched;
 
 
-    @Override protected int provideContentViewId() {
+    /**
+     * 父类ToolbarActivity中定义的抽象类，仅仅用来setContentView
+     *
+     * @return
+     */
+    @Override
+    protected int provideContentViewId() {
         return R.layout.activity_main;
     }
 
 
-    @Override protected void onCreate(Bundle savedInstanceState) {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ButterKnife.bind(this);
         mMeizhiList = new ArrayList<>();
+
+        // 用来储存首页数据
         QueryBuilder query = new QueryBuilder(Meizhi.class);
         query.appendOrderDescBy("publishedAt");
         query.limit(0, 10);
+
+        // 载入缓存数据
         mMeizhiList.addAll(App.sDb.query(query));
 
         setupRecyclerView();
@@ -93,7 +108,8 @@ public class MainActivity extends SwipeRefreshBaseActivity {
     }
 
 
-    @Override protected void onPostCreate(Bundle savedInstanceState) {
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         new Handler().postDelayed(() -> setRefresh(true), 358);
         loadData(true);
@@ -107,12 +123,17 @@ public class MainActivity extends SwipeRefreshBaseActivity {
     }
 
 
+    /**
+     * 初始化RecyclerView
+     */
     private void setupRecyclerView() {
+        // 创建瀑布流布局管理器
         final StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(2,
                 StaggeredGridLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(layoutManager);
         mMeizhiListAdapter = new MeizhiListAdapter(this, mMeizhiList);
         mRecyclerView.setAdapter(mMeizhiListAdapter);
+
         new Once(this).show("tip_guide_6", () -> {
             Snackbar.make(mRecyclerView, getString(R.string.tip_guide), Snackbar.LENGTH_INDEFINITE)
                     .setAction(R.string.i_know, v -> {
@@ -134,22 +155,22 @@ public class MainActivity extends SwipeRefreshBaseActivity {
         mLastVideoIndex = 0;
         // @formatter:off
         Subscription s = Observable
-               .zip(sGankIO.getMeizhiData(mPage),
-                     sGankIO.get休息视频Data(mPage),
-                     this::createMeizhiDataWith休息视频Desc)
-               .map(meizhiData -> meizhiData.results)
-               .flatMap(Observable::from)
-               .toSortedList((meizhi1, meizhi2) ->
-                     meizhi2.publishedAt.compareTo(meizhi1.publishedAt))
-               .doOnNext(this::saveMeizhis)
-               .observeOn(AndroidSchedulers.mainThread())
-               .finallyDo(() -> setRefresh(false))
-               .subscribe(meizhis -> {
-                   if (clean) mMeizhiList.clear();
-                   mMeizhiList.addAll(meizhis);
-                   mMeizhiListAdapter.notifyDataSetChanged();
-                   setRefresh(false);
-               }, throwable -> loadError(throwable));
+                .zip(sGankIO.getMeizhiData(mPage),
+                        sGankIO.get休息视频Data(mPage),
+                        this::createMeizhiDataWith休息视频Desc)
+                .map(meizhiData -> meizhiData.results)
+                .flatMap(Observable::from)
+                .toSortedList((meizhi1, meizhi2) ->
+                        meizhi2.publishedAt.compareTo(meizhi1.publishedAt))
+                .doOnNext(this::saveMeizhis)
+                .observeOn(AndroidSchedulers.mainThread())
+                .finallyDo(() -> setRefresh(false))
+                .subscribe(meizhis -> {
+                    if (clean) mMeizhiList.clear();
+                    mMeizhiList.addAll(meizhis);
+                    mMeizhiListAdapter.notifyDataSetChanged();
+                    setRefresh(false);
+                }, throwable -> loadError(throwable));
         // @formatter:on
         addSubscription(s);
     }
@@ -209,13 +230,17 @@ public class MainActivity extends SwipeRefreshBaseActivity {
                 mMeizhiBeTouched = true;
                 Picasso.with(this).load(meizhi.url).fetch(new Callback() {
 
-                    @Override public void onSuccess() {
+                    @Override
+                    public void onSuccess() {
                         mMeizhiBeTouched = false;
                         startPictureActivity(meizhi, meizhiView);
                     }
 
 
-                    @Override public void onError() {mMeizhiBeTouched = false;}
+                    @Override
+                    public void onError() {
+                        mMeizhiBeTouched = false;
+                    }
                 });
             } else if (v == card) {
                 startGankActivity(meizhi.publishedAt);
@@ -244,17 +269,22 @@ public class MainActivity extends SwipeRefreshBaseActivity {
     }
 
 
-    @Override public void onToolbarClick() {mRecyclerView.smoothScrollToPosition(0);}
+    @Override
+    public void onToolbarClick() {
+        mRecyclerView.smoothScrollToPosition(0);
+    }
 
 
-    @OnClick(R.id.main_fab) public void onFab(View v) {
+    @OnClick(R.id.main_fab)
+    public void onFab(View v) {
         if (mMeizhiList != null && mMeizhiList.size() > 0) {
             startGankActivity(mMeizhiList.get(0).publishedAt);
         }
     }
 
 
-    @Override public void requestDataRefresh() {
+    @Override
+    public void requestDataRefresh() {
         super.requestDataRefresh();
         mPage = 1;
         loadData(true);
@@ -269,7 +299,8 @@ public class MainActivity extends SwipeRefreshBaseActivity {
     }
 
 
-    @Override public boolean onCreateOptionsMenu(Menu menu) {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         MenuItem item = menu.findItem(R.id.action_notifiable);
         initNotifiableItemState(item);
@@ -283,7 +314,8 @@ public class MainActivity extends SwipeRefreshBaseActivity {
     }
 
 
-    @Override public boolean onOptionsItemSelected(MenuItem item) {
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         switch (id) {
             case R.id.action_trending:
@@ -303,11 +335,15 @@ public class MainActivity extends SwipeRefreshBaseActivity {
 
     RecyclerView.OnScrollListener getOnBottomListener(StaggeredGridLayoutManager layoutManager) {
         return new RecyclerView.OnScrollListener() {
-            @Override public void onScrolled(RecyclerView rv, int dx, int dy) {
+            @Override
+            public void onScrolled(RecyclerView rv, int dx, int dy) {
+                int[] ints = layoutManager.findLastCompletelyVisibleItemPositions(new int[2]);
                 boolean isBottom =
-                        layoutManager.findLastCompletelyVisibleItemPositions(new int[2])[1] >=
+                        ints[1] >=
                                 mMeizhiListAdapter.getItemCount() - PRELOAD_SIZE;
+                // 没有刷新且列表到底
                 if (!mSwipeRefreshLayout.isRefreshing() && isBottom) {
+                    // 是否第一次触摸底部
                     if (!mIsFirstTimeTouchBottom) {
                         mSwipeRefreshLayout.setRefreshing(true);
                         mPage += 1;
@@ -321,19 +357,22 @@ public class MainActivity extends SwipeRefreshBaseActivity {
     }
 
 
-    @Override public void onResume() {
+    @Override
+    public void onResume() {
         super.onResume();
         MobclickAgent.onResume(this);
     }
 
 
-    @Override public void onPause() {
+    @Override
+    public void onPause() {
         super.onPause();
         MobclickAgent.onPause(this);
     }
 
 
-    @Override protected void onDestroy() {
+    @Override
+    protected void onDestroy() {
         super.onDestroy();
         ButterKnife.unbind(this);
     }

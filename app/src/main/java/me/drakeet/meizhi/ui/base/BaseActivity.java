@@ -22,6 +22,7 @@ package me.drakeet.meizhi.ui.base;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
+
 import me.drakeet.meizhi.GankApi;
 import me.drakeet.meizhi.DrakeetFactory;
 import me.drakeet.meizhi.R;
@@ -60,7 +61,8 @@ public class BaseActivity extends AppCompatActivity {
     }
 
 
-    @Override public boolean onOptionsItemSelected(MenuItem item) {
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         switch (id) {
             case R.id.action_about:
@@ -85,7 +87,8 @@ public class BaseActivity extends AppCompatActivity {
     }
 
 
-    @Override protected void onDestroy() {
+    @Override
+    protected void onDestroy() {
         super.onDestroy();
         if (this.mCompositeSubscription != null) {
             this.mCompositeSubscription.unsubscribe();
