@@ -344,6 +344,7 @@ public class MainActivity extends SwipeRefreshBaseActivity {
                 // 没有刷新且列表到底
                 if (!mSwipeRefreshLayout.isRefreshing() && isBottom) {
                     // 是否第一次触摸底部
+                    
                     if (!mIsFirstTimeTouchBottom) {
                         mSwipeRefreshLayout.setRefreshing(true);
                         mPage += 1;
