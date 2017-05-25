@@ -111,6 +111,7 @@ public class MainActivity extends SwipeRefreshBaseActivity {
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
+
         new Handler().postDelayed(() -> setRefresh(true), 358);
         loadData(true);
     }
@@ -146,7 +147,6 @@ public class MainActivity extends SwipeRefreshBaseActivity {
 
         mMeizhiListAdapter.setOnMeizhiTouchListener(getOnMeizhiTouchListener());
     }
-
 
     /**
      * 获取服务数据

@@ -37,3 +37,4 @@ build/
 
 *.keystore
 *.java
+app/src/main/java/me/drakeet/meizhi/ui/MainActivity.java
