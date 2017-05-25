@@ -25,10 +25,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
+
+import java.util.List;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import com.bumptech.glide.Glide;
-import java.util.List;
 import me.drakeet.meizhi.R;
 import me.drakeet.meizhi.data.entity.Meizhi;
 import me.drakeet.meizhi.func.OnMeizhiTouchListener;
@@ -53,9 +56,10 @@ public class MeizhiListAdapter
     }
 
 
-    @Override public ViewHolder onCreateViewHolder(ViewGroup parent, int i) {
+    @Override
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int i) {
         View v = LayoutInflater.from(parent.getContext())
-                               .inflate(R.layout.item_meizhi, parent, false);
+                .inflate(R.layout.item_meizhi, parent, false);
         return new ViewHolder(v);
     }
 
@@ -71,23 +75,25 @@ public class MeizhiListAdapter
         viewHolder.card.setTag(meizhi.desc);
 
         Glide.with(mContext)
-             .load(meizhi.url)
-             .centerCrop()
-             .into(viewHolder.meizhiView)
-             .getSize((width, height) -> {
-                 if (!viewHolder.card.isShown()) {
-                     viewHolder.card.setVisibility(View.VISIBLE);
-                 }
-             });
+                .load(meizhi.url)
+                .centerCrop()
+                .into(viewHolder.meizhiView)
+                .getSize((width, height) -> {
+                    if (!viewHolder.card.isShown()) {
+                        viewHolder.card.setVisibility(View.VISIBLE);
+                    }
+                });
     }
 
 
-    @Override public void onViewRecycled(ViewHolder holder) {
+    @Override
+    public void onViewRecycled(ViewHolder holder) {
         super.onViewRecycled(holder);
     }
 
 
-    @Override public int getItemCount() {
+    @Override
+    public int getItemCount() {
         return mList.size();
     }
 
@@ -99,8 +105,10 @@ public class MeizhiListAdapter
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        @Bind(R.id.meizhi) RatioImageView meizhiView;
-        @Bind(R.id.title) TextView titleView;
+        @Bind(R.id.meizhi)
+        RatioImageView meizhiView;
+        @Bind(R.id.title)
+        TextView titleView;
         View card;
         Meizhi meizhi;
 
@@ -115,7 +123,8 @@ public class MeizhiListAdapter
         }
 
 
-        @Override public void onClick(View v) {
+        @Override
+        public void onClick(View v) {
             mOnMeizhiTouchListener.onTouch(v, meizhiView, card, meizhi);
         }
     }

@@ -141,7 +141,9 @@ public class MainActivity extends SwipeRefreshBaseActivity {
                     .show();
         });
 
+        // 设置加载更多
         mRecyclerView.addOnScrollListener(getOnBottomListener(layoutManager));
+
         mMeizhiListAdapter.setOnMeizhiTouchListener(getOnMeizhiTouchListener());
     }
 
@@ -333,6 +335,12 @@ public class MainActivity extends SwipeRefreshBaseActivity {
     }
 
 
+    /**
+     * 加载更多功能，计算最后能显示的条目序号，如果剩余条目数不多余6，则加载下一页，并将
+     * mSwipeRefreshLayout设置为正在刷新，避免网速过慢反复加载下一页
+     * @param layoutManager
+     * @return
+     */
     RecyclerView.OnScrollListener getOnBottomListener(StaggeredGridLayoutManager layoutManager) {
         return new RecyclerView.OnScrollListener() {
             @Override
@@ -343,8 +351,7 @@ public class MainActivity extends SwipeRefreshBaseActivity {
                                 mMeizhiListAdapter.getItemCount() - PRELOAD_SIZE;
                 // 没有刷新且列表到底
                 if (!mSwipeRefreshLayout.isRefreshing() && isBottom) {
-                    // 是否第一次触摸底部
-                    
+                    // 是否第一次触摸底部？？？
                     if (!mIsFirstTimeTouchBottom) {
                         mSwipeRefreshLayout.setRefreshing(true);
                         mPage += 1;
