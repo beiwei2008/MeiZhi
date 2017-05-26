@@ -47,6 +47,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import me.drakeet.meizhi.App;
 import me.drakeet.meizhi.R;
+import me.drakeet.meizhi.data.GankData;
 import me.drakeet.meizhi.data.MeizhiData;
 import me.drakeet.meizhi.data.entity.Gank;
 import me.drakeet.meizhi.data.entity.Meizhi;
@@ -62,6 +63,7 @@ import me.drakeet.meizhi.util.Toasts;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func2;
 
 public class MainActivity extends SwipeRefreshBaseActivity {
 
@@ -173,6 +175,28 @@ public class MainActivity extends SwipeRefreshBaseActivity {
                     mMeizhiListAdapter.notifyDataSetChanged();
                     setRefresh(false);
                 }, throwable -> loadError(throwable));
+
+
+        Func2<MeizhiData, 休息视频Data, MeizhiData> func2 = new Func2<MeizhiData, 休息视频Data, MeizhiData>() {
+            @Override
+            public MeizhiData call(MeizhiData data, 休息视频Data data2) {
+                for (Meizhi meizhi : data.results) {
+                    meizhi.desc = meizhi.desc + " " +
+                            getFirstVideoDesc(meizhi.publishedAt, data2.results);
+                }
+                return data;
+            }
+        };
+
+
+        Observable.zip(sGankIO.getMeizhiData(mPage), sGankIO.get休息视频Data(mPage), (data,data2)->{
+            for (Meizhi meizhi : data.results) {
+                meizhi.desc = meizhi.desc + " " +
+                        getFirstVideoDesc(meizhi.publishedAt, data2.results);
+            }
+        });
+
+
         // @formatter:on
         addSubscription(s);
     }
@@ -338,6 +362,7 @@ public class MainActivity extends SwipeRefreshBaseActivity {
     /**
      * 加载更多功能，计算最后能显示的条目序号，如果剩余条目数不多余6，则加载下一页，并将
      * mSwipeRefreshLayout设置为正在刷新，避免网速过慢反复加载下一页
+     *
      * @param layoutManager
      * @return
      */
