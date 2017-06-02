@@ -60,8 +60,13 @@ import me.drakeet.meizhi.util.Once;
 import me.drakeet.meizhi.util.PreferencesLoader;
 import me.drakeet.meizhi.util.Toasts;
 import rx.Observable;
+import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
+import rx.functions.Action1;
+import rx.functions.Func1;
+import rx.functions.Func2;
 
 public class MainActivity extends SwipeRefreshBaseActivity {
 
@@ -173,6 +178,86 @@ public class MainActivity extends SwipeRefreshBaseActivity {
                     mMeizhiListAdapter.notifyDataSetChanged();
                     setRefresh(false);
                 }, throwable -> loadError(throwable));
+
+        Func2<MeizhiData, 休息视频Data, MeizhiData> func = new Func2<MeizhiData, 休息视频Data, MeizhiData>() {
+            @Override
+            public MeizhiData call(MeizhiData data, 休息视频Data love) {
+                for (Meizhi meizhi : data.results) {
+                    meizhi.desc = meizhi.desc + " " +
+                            getFirstVideoDesc(meizhi.publishedAt, love.results);
+                }
+                return data;
+            }
+        };
+
+
+        Subscription assa = Observable
+                // 两个请求，并处理返回数据
+                .zip(sGankIO.getMeizhiData(mPage),
+                        sGankIO.get休息视频Data(mPage), new Func2<MeizhiData, 休息视频Data, MeizhiData>() {
+                            @Override
+                            public MeizhiData call(MeizhiData data, 休息视频Data love) {
+                                return MainActivity.this.createMeizhiDataWith休息视频Desc(data, love);
+                            }
+                        })
+                // 处理数据，取出list列表
+                .map(new Func1<MeizhiData, List<Meizhi>>() {
+                    @Override
+                    public List<Meizhi> call(MeizhiData data) {
+                        return data.results;
+                    }
+                })
+                // 处理数据，取出list列表中的meizhis对象
+                .flatMap(new Func1<List<Meizhi>, Observable<Meizhi>>() {
+                    @Override
+                    public Observable<Meizhi> call(List<Meizhi> meizhis) {
+                        return Observable.from(meizhis);
+                    }
+                })
+                // 对meizhis对象按publishedAt排序，将meizhis对象重新变为list列表
+                .toSortedList(new Func2<Meizhi, Meizhi, Integer>() {
+                    @Override
+                    public Integer call(Meizhi meizhi, Meizhi meizhi2) {
+                        return meizhi2.publishedAt.compareTo(meizhi.publishedAt);
+                    }
+                })
+                // 将list列表保存到数据库
+                .doOnNext(new Action1<List<Meizhi>>() {
+                    @Override
+                    public void call(List<Meizhi> meizhis) {
+                        saveMeizhis(meizhis);
+                    }
+                })
+                // 切换到主线程
+                .observeOn(AndroidSchedulers.mainThread())
+                // 刷新设置
+                .finallyDo(new Action0() {
+                    @Override
+                    public void call() {
+                        setRefresh(false);
+                    }
+                })
+                // 执行
+                .subscribe(new Subscriber<List<Meizhi>>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        loadError(e);
+                    }
+
+                    @Override
+                    public void onNext(List<Meizhi> meizhis) {
+                        if (clean) mMeizhiList.clear();
+                        mMeizhiList.addAll(meizhis);
+                        mMeizhiListAdapter.notifyDataSetChanged();
+                        setRefresh(false);
+                    }
+                });
+
 
         // @formatter:on
         addSubscription(s);
